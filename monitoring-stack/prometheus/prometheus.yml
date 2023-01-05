@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 30s
+  scrape_timeout: 10s
+
+rule_files:
+  - alert.yml
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['prometheus:9090']
+
+  - job_name: 'netdata'
+    metrics_path: '/api/v1/allmetrics'
+    scrape_interval: 10s
+    static_configs:
+      # Pull data from the netdata installation on the physical host, port 19999
+      # We reference 172.17.0.1, which is the "docker0 gateway", and also the physical host
+      - targets: ['monitor-stack.lxd:19999']
+    honor_labels: true
+    params:
+      format: [prometheus]
+      sources: [as-collected]
+
+  - job_name: 'cadvisor'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['cadvisor:8080']
+      - targets: ['nginx.lxd:8080']
+      #- targets: ['openvas.lxd:8080']
+      #- targets: ['nginx.lxd:8080']
+      #- targets: ['gitlab-dev.lxd:8080']
+      #- targets: ['kundulab-gpu.lxd:8080']
+      #- targets: ['network-debug.lxd:8080']
+      #- targets: ['redmine-dev.lxd:8080']
+      #- targets: ['sapient-master:8080']
+      #- targets: ['sapient-receiver:8080']
+      #- targets: ['sapient-receiver-olddev.lxd:8080']
+      #- targets: ['sapient-slave-1.lxd:8080']
